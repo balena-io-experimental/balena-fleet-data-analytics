@@ -1,0 +1,9 @@
+version: '2.1'
+services:
+  elk:
+    build: ./
+    network_mode: host
+    ports:
+    - "9200:80"
+    - "5601:5601"
+    expose: [5601, 9200]
