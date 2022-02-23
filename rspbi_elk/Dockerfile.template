@@ -1,28 +1,35 @@
 FROM openjdk:8
 
-
-RUN export JAVA_HOME=/usr/local/openjdk-8/
-
 RUN apt-get update -y && apt-get install -y build-essential
 
 RUN apt-get install -y curl
+RUN apt-get install -y nginx
+
+RUN export ES_JAVA_HOME=/usr/local/openjdk-8/
+RUN export JAVA_HOME=/usr/local/openjdk-8/i
+
 
 RUN mkdir /apache
 
-
+# get apache projects for analytics
 RUN wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.15.0-linux-aarch64.tar.gz
 RUN wget https://artifacts.elastic.co/downloads/kibana/kibana-7.15.2-linux-aarch64.tar.gz
 RUN wget https://artifacts.elastic.co/downloads/logstash/logstash-7.15.0-linux-aarch64.tar.gz
+RUN wget https://dlcdn.apache.org/kafka/3.1.0/kafka_2.12-3.1.0.tgz
 
 
 RUN tar -xvzf elasticsearch-7.15.0-linux-aarch64.tar.gz -C /apache
 RUN tar -xvzf logstash-7.15.0-linux-aarch64.tar.gz -C /apache
 RUN tar -xvzf kibana-7.15.2-linux-aarch64.tar.gz -C /apache
+RUN tar -xvzf kafka_2.12-3.1.0.tgz -C /apache
+
 
 # es has to be run as a non-root user
 RUN useradd -ms /bin/bash newuser && usermod -aG sudo newuser && chown -R newuser /apache
 
 COPY . /apache
+
+COPY ../nginx.conf /etc/nginx/sites-available/default
 
 # I could not run this with any permisions
 #RUN echo "vm.max_map_count=262144" >> /etc/sysctl.conf
@@ -30,13 +37,16 @@ COPY . /apache
 
 RUN mv /apache/elasticsearch.yml /apache/elasticsearch-7.15.0/config/
 RUN mv /apache/kibana.yml /apache/kibana-7.15.2-linux-aarch64/config/
+RUN mv /apache/server.properties /apache/kafka_2.12-3.1.0/config/
 
+
+RUN nginx 
 
 # there are issues with using the machine learning expansion inside a docker
-# RUN su newuser -c '/apache/kibana-7.15.2-linux-aarch64/bin/kibana' &
 # RUN su newuser -c '/apache/elasticsearch-7.15.0/bin/elasticsearch  -E xpack.ml.enabled=false'  &
-# RUN newuser -c '/apache/kibana-7.15.2-linux-aarch64/bin/kibana' &
-
+# RUN su newuser -c '/apache/kibana-7.15.2-linux-aarch64/bin/kibana' &
+# RUN su newuser -c '/apache/bin/kafka_2.12-3.1.0/kafka-server-start.sh config/server.properties' &
+# RUN su newuser -c '/apache/bin/kafka_2.12-3.1.0/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 2 --partitions 1 --topic elk-input' 
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
                                    
