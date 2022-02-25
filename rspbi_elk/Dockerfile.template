@@ -6,7 +6,7 @@ RUN apt-get install -y curl
 RUN apt-get install -y nginx
 
 RUN export ES_JAVA_HOME=/usr/local/openjdk-8/
-RUN export JAVA_HOME=/usr/local/openjdk-8/i
+RUN export JAVA_HOME=/usr/local/openjdk-8/
 
 
 RUN mkdir /apache
@@ -23,7 +23,7 @@ RUN tar -xvzf logstash-7.15.0-linux-aarch64.tar.gz -C /apache
 RUN tar -xvzf kibana-7.15.2-linux-aarch64.tar.gz -C /apache
 RUN tar -xvzf kafka_2.12-3.1.0.tgz -C /apache
 # not apache but easier to group
-RUN tar -xvzf confluent-5.5.1-2.12.tar.gz /apache
+RUN tar -xvzf confluent-5.5.1-2.12.tar.gz -C /apache
 
 # es has to be run as a non-root user
 RUN useradd -ms /bin/bash newuser && usermod -aG sudo newuser && chown -R newuser /apache
@@ -38,18 +38,20 @@ COPY . /apache
 RUN mv /apache/elasticsearch.yml /apache/elasticsearch-7.15.0/config/
 RUN mv /apache/kibana.yml /apache/kibana-7.15.2-linux-aarch64/config/
 RUN mv /apache/server.properties /apache/kafka_2.12-3.1.0/config/
+RUN mv /apache/nginx.conf /etc/nginx/sites-available/default
 
 
 RUN nginx 
 
 # there are issues with using the machine learning expansion inside a docker
-# RUN su newuser -c '/apache/elasticsearch-7.15.0/bin/elasticsearch  -E xpack.ml.enabled=false'  &
-# run su newuser -c '/apache/kibana-7.15.2-linux-aarch64/bin/kibana' &
-#  RUN su newuser -c '/apache/kafka_2.12-3.1.0/bin/zookeeper-server-start.sh /apache/kafka_2.12-3.1.0/config/zookeeper.properties' &
-# RUN su newuser -c '/apache/kafka_2.12-3.1.0/bin/kafka-server-start.sh /apache/kafka_2.12-3.1.0/config/server.properties' &
-# RUN su newuser -c '/apache/kafka_2.12-3.1.0/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic elk-input' 
-# RUN su newuser -c '/apache/confluent-5.5.1/bin/kafka-rest-start /apache/confluent-5.5.1/etc/kafka-rest/kafka-rest.properties'
-
+RUN su newuser -c '/apache/elasticsearch-7.15.0/bin/elasticsearch  -E xpack.ml.enabled=false'  &
+RUN su newuser -c '/apache/kibana-7.15.2-linux-aarch64/bin/kibana' &
+# not sure how to run this
+RUN su newuser -c '/apache/kafka_2.12-3.1.0/bin/zookeeper-server-start.sh /apache/kafka_2.12-3.1.0/config/zookeeper.properties' &
+RUN su newuser -c '/apache/kafka_2.12-3.1.0/bin/kafka-server-start.sh /apache/kafka_2.12-3.1.0/config/server.properties' &
+RUN su newuser -c '/apache/kafka_2.12-3.1.0/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic elk-input' &
+RUN su newuser -c '/apache/confluent-5.5.1/bin/kafka-rest-start /apache/confluent-5.5.1/etc/kafka-rest/kafka-rest.properties' &
+RUN su newuser -c '/apache/logstash-7.15.0/bin/logstash -f /apache/logstash-test-pipe.config' &
 
 ENTRYPOINT ["tail", "-f", "/dev/null"]
                                    

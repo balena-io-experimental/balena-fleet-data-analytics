@@ -1,0 +1,2 @@
+kafka_rest:
+    proxy_url: "http://965ca6d636fc5be11b730207b3650551.balena-devices.com/kafka-rest/topics/elk-input/"
