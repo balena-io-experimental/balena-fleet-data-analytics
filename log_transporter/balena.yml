@@ -1,0 +1,10 @@
+name: log-transporter
+type: sw.application
+version: 0.0.1
+description: >-
+  Funnels the data a data store via http. Currently supported: a) kafka (via kafka-rest)
+assets:
+  repository:
+    type: blob.asset
+    data:
+      url: 'https://github.com/balena-io-playground/balena-fleet-data-analytics/tree/main/log_transporter'
