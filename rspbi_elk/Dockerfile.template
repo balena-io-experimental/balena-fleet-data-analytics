@@ -38,6 +38,7 @@ COPY . /apache
 RUN mv /apache/elasticsearch.yml /apache/elasticsearch-7.15.0/config/
 RUN mv /apache/kibana.yml /apache/kibana-7.15.2-linux-aarch64/config/
 RUN mv /apache/server.properties /apache/kafka_2.12-3.1.0/config/
+RUN mv /apache/zookeeper.properties /apache/kafka_2.12-3.1.0/config/
 RUN mv /apache/nginx.conf /etc/nginx/sites-available/default
 
 

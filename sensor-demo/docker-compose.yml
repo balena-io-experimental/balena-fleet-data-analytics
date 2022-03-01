@@ -1,0 +1,31 @@
+version: '2.1'
+services:
+	sensor:
+	    build: balenablocks/sensor
+	    privileged: true
+	    labels:
+	      io.balena.features.kernel-modules: '1'
+	      io.balena.features.sysfs: '1'
+	      io.balena.features.supervisor-api: '1'
+	    expose:
+	      - '7575'
+	    environment:
+	      RAW_VALUES: '0'
+	      COLLAPSE_FIELDS: '1'
+	connector:
+		image: balenablocks/connector
+		restart: always
+		labels:
+		  io.balena.features.balena-api: '1'
+		privileged: true
+		ports:
+		  - "8080"
+		enviroment:
+		  ENABLE_EXTERNAL_HTTP_LISTENER: 1
+		  HTTP_PUSH_URL: 'localhost:5000'		  	 
+	log-transporter:
+		image: balenablocks/log-transporter
+		labels:
+		  io.balena.features.balena-api: '1'
+		ports:
+		  - "5000"
