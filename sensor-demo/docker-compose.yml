@@ -1,31 +1,32 @@
 version: '2.1'
 services:
-	sensor:
-	    build: balenablocks/sensor
-	    privileged: true
-	    labels:
-	      io.balena.features.kernel-modules: '1'
-	      io.balena.features.sysfs: '1'
-	      io.balena.features.supervisor-api: '1'
-	    expose:
-	      - '7575'
-	    environment:
-	      RAW_VALUES: '0'
-	      COLLAPSE_FIELDS: '1'
-	connector:
-		image: balenablocks/connector
-		restart: always
-		labels:
-		  io.balena.features.balena-api: '1'
-		privileged: true
-		ports:
-		  - "8080"
-		enviroment:
-		  ENABLE_EXTERNAL_HTTP_LISTENER: 1
-		  HTTP_PUSH_URL: 'localhost:5000'		  	 
-	log-transporter:
-		image: balenablocks/log-transporter
-		labels:
-		  io.balena.features.balena-api: '1'
-		ports:
-		  - "5000"
+  sensor:
+    image: balenablocks/sensor
+    privileged: true
+    labels:
+      io.balena.features.kernel-modules: '1'
+      io.balena.features.sysfs: '1'
+      io.balena.features.supervisor-api: '1'
+    expose:
+      - '7575'
+    environment:
+      RAW_VALUES: '0'
+      COLLAPSE_FIELDS: '1'
+  log-transporter:
+    image: g_ilija_subasic/log_transporter
+    labels:
+      io.balena.features.balena-api: '1'
+    ports:
+      - "5000"
+  connector:
+    image: balenablocks/connector:latest
+    restart: always
+    labels:
+      io.balena.features.balena-api: '1' # necessary to discover services
+      io.balena.features.supervisor-api: 1  # necessary to discover services in local mode
+    privileged: true # necessary to change container hostname
+    ports:
+      - "8080" # only necessary if using ExternalHttpListener (see below)
+    #enviroment:
+    #  ENABLE_EXTERNAL_HTTP_LISTENER: 1
+    #  HTTP_PUSH_URL: 'localhost:5000'         

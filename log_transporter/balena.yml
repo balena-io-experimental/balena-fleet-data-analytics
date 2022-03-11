@@ -1,4 +1,4 @@
-name: log-transporter
+name: log_transporter
 type: sw.application
 version: 0.0.1
 description: >-

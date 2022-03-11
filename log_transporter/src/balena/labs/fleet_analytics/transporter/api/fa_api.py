@@ -42,7 +42,7 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
     # this probably needs to be somehow abstracted so that it can take any value
     # POST requests cannot be reddirected 
-    sink_type = os.getenv('BALENA_FLEET_SINK_TYPE', '')
+    sink_type = os.getenv('BALENA_FLEET_SINK    _TYPE', '')
     kafka_rest_url = os.getenv('BALENA_FLEET_ANALYTICS_KAFKA_URL', '')
     transporter_port = os.getenv('BALENA_FLEET_ANALYTICS_PORT', 5000)
     if kafka_rest_url:
